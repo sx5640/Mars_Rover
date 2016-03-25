@@ -1,10 +1,19 @@
 module Drive
+
+  def get_cor
+    puts "Give me Order to move"
+    self.co_ordinates = gets.chomp
+    if order.class != Array
+      puts "Error: get_order: Order needs to be String"
+    end
+  end
   #a method to input orders(Ls & Rs), and split into arrays
-  def get_order
-    puts "Give me Order"
-    order = gets.chomp
-    if order.class == Class
+  def get_move
+    puts "Give me Order to move"
+    self.move = gets.chomp
+    if order.class == String
       steps = order.upcase.split(//)
+      return steps
     else
       puts "Error: get_order: Order needs to be String"
     end
@@ -43,21 +52,21 @@ module Drive
   #Let's turn it first. this is what will be called if the order is L or R
   def turn(direction)
     if direction == "R"
-      if  co_co[2] == 3
-        co_co[2] = 0
+      if  co_or[2] == 3
+        co_or[2] = 0
       else
-        co_co[2] +=1
+        co_or[2] +=1
       end
     elsif direction == "L"
-      if  co_co[2] == 0
-        co_co[2] = 3
+      if  co_or[2] == 0
+        co_or[2] = 3
       else
-        co_co[2] -=1
+        co_or[2] -=1
       end
     else
       puts "Error: turn: Order needs to be either L or R"
     end
-    return result_co
+    return co_or
   end
 
   #move by one step. this is what will be called if the order is M
@@ -76,12 +85,28 @@ module Drive
     return co_or
   end
 
+  def alltogether
+    self.get_cor
+    steps = self.get_move
+    co_or = self.direction_num
+    steps.each do |direction|
+      if direction == "L" || direction == "R"
+        co_or = self.
+
+  end
+
 end
 
 class Rover
   include Drive
-  attr_accessor :co_ordinates
+  attr_accessor :co_ordinates, :move,
   def initialize(co_ordinate = [0, 0, "N"])
     @co_ordinates = co_ordinate
   end
 end
+
+eva = Rover.new
+gundam = Rover.new
+
+puts eva
+puts gundam
