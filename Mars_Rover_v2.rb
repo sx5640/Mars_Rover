@@ -1,6 +1,3 @@
-#This is how I think about the problem in this version: Each rover will first get thier co_ordinates to start with, the get a string of cammand that they will follow each letter after the other. There are two types of command: to move, and to turn. So each type of command will get a different function.
-#Since the direction is easier to be coverted in integers rather than strings, the rover will convert its 3-dimentional co_ordinates [x, y, direction] into numerical form, before execute each command to move or turn, and convert back to its original form at the end of execution.
-#Instead of creating a class for the Plateau, I put the size of the Plateau as a limitation condition when inputting the starting position of the rover, and have it checked each time after executing a move (M). Similar method was used to avoid collision.
 module Drive
 
   #input starting co_ordinates for each rover, and transform in to arrays
