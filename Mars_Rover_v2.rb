@@ -1,4 +1,6 @@
-module Drive
+$direction_array = ["N", "E", "S", "W"]
+
+module Mission_Control
 
   #input starting co_ordinates for each rover, and transform in to arrays
   def get_cor
@@ -11,7 +13,7 @@ module Drive
     else
       puts "Error: get_order: co_ordinates needs to be String"
     end
-    if co_ordinates[0] > $x_range || co_ordinates[1] > $y_range
+    if co_ordinates[0] > $x_range || co_ordinates[1] > $y_range || co_ordinates[0] < 0 || co_ordinates[1] < 0
       puts "Error: get_cor: You cannot start outside Plateau"
     elsif co_ordinates[0..1] == collision_points
       puts "Error: get_cor: You are colliding with the other rover"
@@ -27,112 +29,68 @@ module Drive
       steps = move.upcase.split(//)
       return steps
     else
-      puts "Error: get_order: Order needs to be String"
+      puts "Error: get_move: Order needs to be String"
     end
     puts "get_move: steps = #{steps}"
   end
+end
 
-  #creating a method that take NESW direciton and outputs in numerical form, in order to simplify the change
-  def direction_num
-    temp_co = co_ordinates
-    if co_ordinates[2] == "N"
-      temp_co[2] = 0
-    elsif co_ordinates[2] == "E"
-      temp_co[2] = 1
-    elsif co_ordinates[2] == "S"
-      temp_co[2] = 2
-    elsif co_ordinates[2] == "W"
-      temp_co[2] = 3
-    else
-      puts "Error: direction_num: Cannot read direction"
-    end
-    puts "direction_num: temp_co = #{temp_co}"
-    return temp_co
-  end
-
-  #this method gets actual direction from its numerical form
-  def num_direction(temp_co)
-    result_co = temp_co
-    if temp_co[2] == 0
-      result_co[2] = "N"
-    elsif temp_co[2] == 1
-      result_co[2] = "E"
-    elsif temp_co[2] == 2
-      result_co[2] = "S"
-    elsif temp_co[2] == 3
-      result_co[2] = "W"
-    else
-      puts "Error: num_direction: Cannot read direction"
-    end
-    puts "num_direction result_co = #{result_co}"
-    return result_co
-  end
-
-  #Let's turn it first. this is what will be called if the order is L or R
-  def turn(direction, temp_co)
-    if direction == "R"
-      if  temp_co[2] == 3
-        temp_co[2] = 0
-      else
-        temp_co[2] +=1
-      end
-    elsif direction == "L"
-      if  temp_co[2] == 0
-        temp_co[2] = 3
-      else
-        temp_co[2] -=1
-      end
+module Drive
+  def turn(order)
+    case order
+    when "R"
+      self.co_ordinates[2] = $direction_array[($direction_array.index(co_ordinates[2])+1)%4]
+    when "L"
+      self.co_ordinates[2] = $direction_array[($direction_array.index(co_ordinates[2])+1)%4]
     else
       puts "Error: turn: Order needs to be either L or R"
     end
-    puts "turn: temp_co = #{temp_co}"
-    return temp_co
+    puts "turn: co_ordinates = #{co_ordinates}"
   end
 
   #move by one step. this is what will be called if the order is M
-  def move_by_one(temp_co)
-    if temp_co[2] == 0
-      temp_co[1] += 1
-    elsif temp_co[2] == 2
-      temp_co[1] -= 1
-    elsif temp_co[2] == 1
-      temp_co[0] += 1
-    elsif temp_co[2] == 3
-      temp_co[0] -= 1
+  def move_by_one
+    case co_ordinates[2]
+    when "N"
+      co_ordinates[1] += 1
+    when "S"
+      co_ordinates[1] -= 1
+    when "E"
+      co_ordinates[0] += 1
+    when "W"
+      co_ordinates[0] -= 1
     else
       puts "Error: move_by_one: Initial Direction cannot be read"
     end
-    puts "move_by_one: temp_co = #{temp_co}"
-    return temp_co
+    puts "move_by_one: co_ordinates = #{co_ordinates}"
   end
 
   #finally let's put everything together to drive it
   def driver
     self.get_cor
     steps = self.get_move
-    temp_co = self.direction_num
-    steps.each do |direction|
-      if direction == "L" || direction == "R"
-        temp_co = self.turn(direction, temp_co)
-      elsif direction == "M"
-        temp_co = self.move_by_one(temp_co)
-        if temp_co[0] > $x_range || temp_co[1] > $y_range
-          break puts "Error: You are Leaving Plateau"
-        elsif temp_co[0..1] == collision_points
+    steps.each do |order|
+      case order
+      when "L" ,"R"
+        self.turn(order)
+      when "M"
+        self.move_by_one
+        if co_ordinates[0] > $x_range || co_ordinates[1] > $y_range || co_ordinates[0] < 0 || co_ordinates[1] < 0
+          break puts "Error: drive: You are Leaving Plateau"
+        elsif co_ordinates[0..1] == collision_points
           break puts "Error: You are colliding with the other rover"
         end
       else
         puts "Error: drive: Command need to be either L, R, or M"
       end
     end
-    return result_co = self.num_direction(temp_co)
-
   end
 
 end
 
 #define the class Rover
 class Rover
+  include Mission_Control
   include Drive
   attr_accessor :co_ordinates, :move, :collision_points
   def initialize(co_ordinate = [0, 0, "N"])
@@ -161,10 +119,10 @@ gundam = Rover.new
 set_range
 
 #Let's Drive
-eva_final = eva.driver
-puts "the resulting co_ordinates are #{eva_final.join(' ')}"
-gundam.collision_points = eva_final[0..1]
+eva.driver
+puts "the resulting co_ordinates are #{eva.co_ordinates}"
+gundam.collision_points = eva.co_ordinates[0..1]
 
-gundam_final = gundam.driver
-puts "the resulting co_ordinates are #{gundam_final.join(' ')}"
-eva.collision_points = gundam_final[0..1]
+gundam.driver
+puts "the resulting co_ordinates are #{gundam.co_ordinates}"
+eva.collision_points = eva.co_ordinates[0..1]
